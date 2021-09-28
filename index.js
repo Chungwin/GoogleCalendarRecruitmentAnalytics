@@ -1,9 +1,6 @@
-const { CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN } = require('./config')
-
 const getFullCalendar = require('./getFullCalendar')
 const getSingleEvents = require('./getSingleEvents')
 
-const axios = require('axios')
 const express = require('express')
 
 const app = express()
