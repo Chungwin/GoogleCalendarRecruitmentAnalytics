@@ -4,7 +4,7 @@ This is a follow-up on my **[Breezy Recruitment Analytics Project.](https://gith
 **Goal:**
 - Store all Google Calendar Events from a given calendar in a SQL Database. 
 - Identify Interviews 
-- Connect Interview-Event-Data with Interview-Dta from **[Breezy Recruitment Analytics Project.](https://github.com/Chungwin/BreezyRecruitmentAnalytics)** for more precise time meterics.
+- Connect Interview-Event-Data with Interview-Data from **[Breezy Recruitment Analytics Project.](https://github.com/Chungwin/BreezyRecruitmentAnalytics)** for more precise time meterics.
 - Constatly update and anonmyise the data accordig to GDPR-guidelines.
 
 ## Installation
@@ -20,6 +20,8 @@ Create a .env file with
 GOOGLECALENDAR_CLIENT_ID= ...
 GOOGLECALENDAR_CLIENT_SECRET= ...
 GOOGLECALENDAR_REFRESH_TOKEN= ...
+CALENDAR_EMAIL= ...
+
 ```
 
 ## License
