@@ -4,8 +4,8 @@ const getSingleEvents = require('./getSingleEvents')
 const dbInsertSingleEvents = require('./dbInsertSingleEvents')
 
 const express = require('express')
-const getBreezyCandidates = require('./getBreezyCandidates')
-const queryPositionIds = require('../breezySQL/candidates/queryPositionIds')
+const getBreezyCandidates = require('./breezy/getBreezyCandidates')
+const queryPositionIds = require('./breezy/queryPositionIds')
 
 const app = express()
 const port = 9090
@@ -15,9 +15,6 @@ app.get('/calendar', async (req, res) => {
 
         let fullCalendarArray = await getFullCalendar()
         dbInsertFullCalendar(fullCalendarArray)
-        // Instert in DB (MongoDB) from 2020 onwards
-        //      Update just last 30 days
-        //      What type of changes havebeen made?
         
         // Get events out of DB
         // let singleEventsArray = getSingleEvents(fullCalendarArray)

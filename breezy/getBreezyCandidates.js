@@ -1,5 +1,5 @@
 const request_promise = require('request-promise')
-const { AUTH_TOKEN, COMPANY_ID, DB_HOST, DB_USER, DB_PASSWORD, DATABASE } = require('./config')
+const { AUTH_TOKEN, COMPANY_ID, DB_HOST, DB_USER, DB_PASSWORD, DATABASE } = require('../config')
 
 const mysql = require('mysql')
 

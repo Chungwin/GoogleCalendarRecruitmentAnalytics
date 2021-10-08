@@ -84,24 +84,18 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
         for(let apiEvent of apiRecentEvents) {
 
             if(!dbRecentEventIds.includes(apiEvent.id)) {
+                // Insert in DB
                 counterNewEventsInserted = counterNewEventsInserted + 1
                 continue
             } 
 
-            let dbEventMatch = dbRecentEvents.find(dbEvent => {
-                return dbEvent.id === apiEvent.id
-            })
-
-            if (dbEventMatch === undefined || apiEvent === undefined) {
-                console.log(dbEventMatch);
-                console.log(apiEvent);
-            }
-
+            let dbEventMatch = dbRecentEvents.find(dbEvent => dbEvent.id === apiEvent.id )
             if (dbEventMatch.updated === apiEvent.updated) {
                 counterUnchangedEvents = counterUnchangedEvents + 1
                 continue
             }
 
+            // Update DB Event
             counterUpdatedEvents = counterUpdatedEvents + 1
             
         }
