@@ -17,6 +17,7 @@ const calendar = google.calendar({ version: 'v3', auth: oAuth2Client })
 const getFullCalendar = async () => {
     var nextPageToken 
     var fullCalendarArray = []
+    var counter = 0
 
     do {
         if (nextPageToken) {
@@ -32,7 +33,6 @@ const getFullCalendar = async () => {
 
         let responseCalendarPage = response.data.items
         var nextPageToken = response.data.nextPageToken
-        console.log(`Next pages token ${nextPageToken}`);
         
         for (let event of responseCalendarPage) {
             let eventObject = new Object()
@@ -40,9 +40,12 @@ const getFullCalendar = async () => {
             fullCalendarArray.push(eventObject)
         }
 
+        counter = counter + 1
+        console.log(`Page: ${counter}`);
+
     } while (response.data.nextPageToken)
 
-    console.log(`Full Calendar Array: Number of events: ${fullCalendarArray.length}`)
+    console.log(`Number of all events: ${fullCalendarArray.length}`)
     return fullCalendarArray
 
 }
