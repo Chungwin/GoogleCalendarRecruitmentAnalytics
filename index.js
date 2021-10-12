@@ -33,7 +33,7 @@ app.get('/calendar', async (req, res) => {
 
         // await dbInsertSingleEvents(singleEventsArray)
 
-        res.send("Done")
+        res.send(fullCalendarArray.slice(-20))
 
     } catch (e) {
         console.log(e);

@@ -1,4 +1,5 @@
 const { CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, CALENDAR_EMAIL } = require('../config')
+const chalk = require('chalk')
 const { google } = require('googleapis')
 const { OAuth2 } = google.auth
 
@@ -23,29 +24,32 @@ const getFullCalendar = async () => {
         if (nextPageToken) {
             var response = await calendar.events.list({
                 calendarId: `${CALENDAR_EMAIL}`,
+                maxResults: 500,
+                // orderBy: "updated",
                 pageToken: `${nextPageToken}`
             })
         } else {
             var response = await calendar.events.list({
                 calendarId: `${CALENDAR_EMAIL}`,
+                maxResults: 500,
+                // orderBy: "updated"
             })
         }
 
         let responseCalendarPage = response.data.items
-        var nextPageToken = response.data.nextPageToken
         
         for (let event of responseCalendarPage) {
             let eventObject = new Object()
             eventObject = event
             fullCalendarArray.push(eventObject)
         }
-
         counter = counter + 1
-        console.log(`Page: ${counter}`);
+        console.log(`Page: ${counter}`)
+        nextPageToken = response.data.nextPageToken
 
     } while (response.data.nextPageToken)
 
-    console.log(`API call / Number of all events: ${fullCalendarArray.length}\n`)
+    console.log(chalk.bgGrey(`\nTotal number of fetched events: ${fullCalendarArray.length}`))
     return fullCalendarArray
 
 }

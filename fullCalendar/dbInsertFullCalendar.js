@@ -1,4 +1,5 @@
 const { GOOGLE_CAL_DATABASE, CONNECTION_URL } = require('../config')
+const chalk = require('chalk')
 const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient
 
@@ -9,34 +10,57 @@ const databaseName = GOOGLE_CAL_DATABASE  // Connect / Create DB
 const dbInsertFullCalendar = async (fullCalendarArray) => {
 
     try {
-
         let counterNewEventsInserted = 0
         let counterUnchangedEvents = 0
         let counterUpdatedEvents = 0
+        let counterStartUndefined = 0
+        let counterDateTimeUndefined = 0
 
-        const checkDate = "2021-06-01"
+        // Check date Format and time comparisson!
+        const checkDate = "2010-06-01"
         const parsedCheckDate = Date.parse(checkDate)
 
-    
-        const client = await MongoClient.connect(connectionURL)
-        const db = client.db(databaseName)
-
-
-        // Get all Events from DB since checkDate
-        let dbRecentEvents = []
-        let dbAllEvents = await db.collection('fullGoogleCalendar').find({}).toArray()
-        for (let event of dbAllEvents) {
-
+        
+        // Get all Evets from API Call since checkDate
+        let apiRecentEvents = []
+        for (let event of fullCalendarArray) {
             if (event.start === undefined) {
+                // Cancelled Events - originalStartTime: { .. }
+                counterStartUndefined = counterStartUndefined + 1
                 continue
             }
 
-            var dateObj = event.start
+            let dateObj = event.start
             if (dateObj.dateTime === undefined) {
+                // Whole Day Events e.g. Holiday
+                counterDateTimeUndefined = counterDateTimeUndefined + 1
                 continue
             }
 
             let dateString = dateObj.dateTime
+            let parsedDate = Date.parse(dateString)
+
+            // Parse full event objects here?!?
+            if (parsedDate > parsedCheckDate) {
+                apiRecentEvents.push(event)
+            } 
+            continue
+        }
+        
+        console.log(`'Cancelled' events since ${checkDate}: ${counterStartUndefined}`)
+        console.log(`'All day' events since ${checkDate}: ${counterDateTimeUndefined}`)
+        console.log(`Other events since ${checkDate}: ${apiRecentEvents.length} \n`)
+        
+
+        // Get all Events from DB since checkDate
+        const client = await MongoClient.connect(connectionURL)
+        const db = client.db(databaseName)
+        
+        let dbRecentEvents = []
+        let dbAllEvents = await db.collection('fullGoogleCalendar').find({}).toArray()
+        for (let event of dbAllEvents) {
+
+            let dateString = event.start.dateTime
             let parsedDate = Date.parse(dateString)
 
             if (parsedDate > parsedCheckDate) {
@@ -47,36 +71,9 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
                 dbRecentEvents.push(dbRecentEventObj)
             } 
             continue
-
         }
-        console.log(`Events in DB since ${checkDate}: ${dbRecentEvents.length}`)
 
-        
-        // Get all Evets from API Call since checkDate
-        let apiRecentEvents = []
-        for (let event of fullCalendarArray) {
-            if (event.start === undefined) {
-                continue
-            }
-
-            var dateObj = event.start
-            if (dateObj.dateTime === undefined) {
-                continue
-            }
-
-            let dateString = dateObj.dateTime
-            let parsedDate = Date.parse(dateString)
-
-            if (parsedDate > parsedCheckDate) {
-                let apiRecentEventObj = new Object()
-                apiRecentEventObj.id = event.id
-                apiRecentEventObj.created = event.created
-                apiRecentEventObj.updated = event.updated
-                apiRecentEvents.push(apiRecentEventObj)
-            } 
-            continue
-        }
-        console.log(`Events in API call since ${checkDate}: ${apiRecentEvents.length} \n`)
+        console.log(chalk.bgGreen(`Events in DB since ${checkDate}: ${dbRecentEvents.length}`))
 
 
         // Cross-check new, updated or unchanged events
@@ -84,8 +81,9 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
         for(let apiEvent of apiRecentEvents) {
 
             if(!dbRecentEventIds.includes(apiEvent.id)) {
-                // Insert in DB
+                let result = await db.collection('fullGoogleCalendar').insertOne(apiEvent)
                 counterNewEventsInserted = counterNewEventsInserted + 1
+                // console.log(result);
                 continue
             } 
 
