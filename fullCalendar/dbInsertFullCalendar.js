@@ -40,7 +40,6 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
             let dateString = dateObj.dateTime
             let parsedDate = Date.parse(dateString)
 
-            // Parse full event objects here?!?
             if (parsedDate > parsedCheckDate) {
                 apiRecentEvents.push(event)
             } 
@@ -55,7 +54,7 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
         // Get all Events from DB since checkDate
         const client = await MongoClient.connect(connectionURL)
         const db = client.db(databaseName)
-        
+
         let dbRecentEvents = []
         let dbAllEvents = await db.collection('fullGoogleCalendar').find({}).toArray()
         for (let event of dbAllEvents) {
@@ -73,7 +72,7 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
             continue
         }
 
-        console.log(chalk.bgGreen(`Events in DB since ${checkDate}: ${dbRecentEvents.length}`))
+        console.log(chalk.bgGreen(`Events in DB since ${checkDate}: ${dbRecentEvents.length}\n`))
 
 
         // Cross-check new, updated or unchanged events
@@ -83,7 +82,6 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
             if(!dbRecentEventIds.includes(apiEvent.id)) {
                 let result = await db.collection('fullGoogleCalendar').insertOne(apiEvent)
                 counterNewEventsInserted = counterNewEventsInserted + 1
-                // console.log(result);
                 continue
             } 
 
@@ -94,12 +92,14 @@ const dbInsertFullCalendar = async (fullCalendarArray) => {
             }
 
             // Update DB Event
+            let result = await db.collection('fullGoogleCalendar').replaceOne({"id": apiEvent.id}, apiEvent)
             counterUpdatedEvents = counterUpdatedEvents + 1
             
         }
-        console.log(`Cross-check / Unchanged Events since ${checkDate}: ${counterUnchangedEvents}`)
-        console.log(`Cross-check / Updated Events since ${checkDate}: ${counterUpdatedEvents}`)
-        console.log(`Cross-check / New Events since last update: ${counterNewEventsInserted}`)
+        console.log('Cross-check DB with API Call:')
+        console.log(`Newly created events since last update: ${counterNewEventsInserted}`)
+        console.log(`Updated events since last update: ${counterUpdatedEvents}`)
+        console.log(`Unchanged events since last update: ${counterUnchangedEvents}`)
 
         client.close()
     } catch(e) {

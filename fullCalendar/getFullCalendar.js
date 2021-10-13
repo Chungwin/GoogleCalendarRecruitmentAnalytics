@@ -49,7 +49,7 @@ const getFullCalendar = async () => {
 
     } while (response.data.nextPageToken)
 
-    console.log(chalk.bgGrey(`\nTotal number of fetched events: ${fullCalendarArray.length}`))
+    console.log(chalk.bgGrey(`\nFetched Events from API (Total Number): ${fullCalendarArray.length}`))
     return fullCalendarArray
 
 }
